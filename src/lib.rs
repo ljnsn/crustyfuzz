@@ -132,7 +132,7 @@ mod indel {
         }
     }
 
-    pub fn indel_normalize_similarity<T: Hashable + Clone>(
+    pub fn normalized_similarity<T: Hashable + Clone>(
         s1: Option<&[T]>,
         s2: Option<&[T]>,
         processor: Option<fn(Vec<T>) -> Vec<T>>,
@@ -144,39 +144,54 @@ mod indel {
 
         let s1_mut = s1.unwrap().to_vec();
         let s2_mut = s2.unwrap().to_vec();
+
         let (processed_s1, processed_s2) = match processor {
             Some(proc) => (proc(s1_mut), proc(s2_mut)),
             None => (s1_mut, s2_mut),
         };
 
         let (s1_seq, s2_seq) = conv_sequences(&processed_s1, &processed_s2);
+        let norm_dist = normalized_distance(&s1_seq, &s2_seq, score_cutoff);
+        let norm_sim = 1.0 - norm_dist;
 
-        0.0
+        if score_cutoff.is_none() || norm_dist <= score_cutoff.unwrap() {
+            norm_dist
+        } else {
+            1.0
+        }
     }
 }
 
 pub mod fuzz {
     use crate::common::Hashable;
-    use crate::indel::indel_normalize_similarity;
-    use crate::utils::is_none;
+    use crate::indel::normalized_similarity;
     use std::clone::Clone;
 
-    pub fn ratio<T: Hashable + Clone + 'static>(
-        s1: Option<&[T]>,
-        s2: Option<&[T]>,
-        processor: Option<fn(Vec<T>) -> Vec<T>>,
+    pub fn ratio(
+        s1: Option<&str>,
+        s2: Option<&str>,
+        processor: Option<fn(Vec<char>) -> Vec<char>>,
         score_cutoff: Option<f64>,
     ) -> f64 {
-        if is_none(s1) || is_none(s2) {
-            return 0.0;
-        }
+        match (s1, s2) {
+            (Some(s1), Some(s2)) => {
+                if s1.is_empty() || s2.is_empty() {
+                    return 0.0;
+                }
 
-        let mut score_cutoff = score_cutoff.clone();
-        if !score_cutoff.is_none() {
-            score_cutoff = Some(score_cutoff.unwrap() / 100.0);
-        }
+                let mut score_cutoff = score_cutoff;
+                if let Some(cutoff) = score_cutoff {
+                    score_cutoff = Some(cutoff / 100.0);
+                }
 
-        let score = indel_normalize_similarity(s1, s2, processor, score_cutoff);
-        score * 100.0
+                let s1_vec: Vec<char> = s1.chars().collect();
+                let s2_vec: Vec<char> = s2.chars().collect();
+
+                let score =
+                    normalized_similarity(Some(&s1_vec), Some(&s2_vec), processor, score_cutoff);
+                score * 100.0
+            }
+            _ => 0.0,
+        }
     }
 }

@@ -2,6 +2,6 @@ use crustyfuzz::fuzz::*;
 
 fn main() {
     let s1 = "hello";
-    let score = ratio(s1.chars(), "hello", None, None);
+    let score = ratio(Some(s1), Some("hello"), None, None);
     println!("{:?}", score);
 }
