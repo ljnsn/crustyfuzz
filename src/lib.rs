@@ -67,20 +67,20 @@ mod common {
 mod lcs_seq {
     use std::collections::HashMap;
 
-    fn count_zeros_in_binary_string(s: u64, s1: &[&[u64]]) -> usize {
+    fn count_zeros_in_binary_string(s: u64, s1: &Vec<u64>) -> usize {
         let binary_string = format!("{:b}", s);
         let start_index = binary_string.len().saturating_sub(s1.len());
         let slice = &binary_string[start_index..];
         slice.chars().filter(|&c| c == '0').count()
     }
 
-    pub fn similarity(s1: &[&[u64]], s2: &[&[u64]], score_cutoff: Option<f64>) -> f64 {
+    pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 {
         if s1.is_empty() {
             return 0.0;
         }
 
         let mut s = (1 << s1.len()) - 1;
-        let mut block = HashMap::<&&[u64], u64>::new();
+        let mut block = HashMap::<u64, u64>::new();
         let mut x = 1;
         for ch1 in s1 {
             block.get_mut(&ch1).map(|v| *v | x);
@@ -110,7 +110,7 @@ mod indel {
     use crate::utils::is_none;
     use std::clone::Clone;
 
-    pub fn distance(s1: &[&[u64]], s2: &[&[u64]], score_cutoff: Option<f64>) -> f64 {
+    pub fn distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 {
         let maximum = (s1.len() + s2.len()) as f64;
         let lcs_sim = similarity(s1, s2, None);
         let dist = maximum - 2.0 * lcs_sim;
@@ -121,7 +121,7 @@ mod indel {
         }
     }
 
-    pub fn normalized_distance(s1: &[&[u64]], s2: &[&[u64]], score_cutoff: Option<f64>) -> f64 {
+    pub fn normalized_distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 {
         let maximum = (s1.len() + s2.len()) as f64;
         let dist = distance(s1, s2, None);
         let norm_dist = if maximum == 0.0 { 0.0 } else { dist / maximum };
@@ -155,7 +155,7 @@ mod indel {
         let norm_sim = 1.0 - norm_dist;
 
         if score_cutoff.is_none() || norm_dist <= score_cutoff.unwrap() {
-            norm_dist
+            norm_sim
         } else {
             1.0
         }
@@ -163,9 +163,7 @@ mod indel {
 }
 
 pub mod fuzz {
-    use crate::common::Hashable;
     use crate::indel::normalized_similarity;
-    use std::clone::Clone;
 
     pub fn ratio(
         s1: Option<&str>,
