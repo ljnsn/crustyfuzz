@@ -96,11 +96,16 @@ mod lcs_seq {
         // let s1_s: Vec<_> = s1.iter().map(|v| v.clone()).collect();
         // calculate the equivalent of popcount(~S) in C. This breaks for len(s1) == 0
         let res = count_zeros_in_binary_string(s, s1) as f64;
-        if score_cutoff.is_none() || res >= score_cutoff.unwrap() {
-            res
-        } else {
-            0.0
+
+        dbg!(res);
+
+        if let Some(cutoff) = score_cutoff {
+            if res < cutoff {
+                return 0.0;
+            }
         }
+
+        res
     }
 }
 
@@ -114,6 +119,9 @@ mod indel {
         let maximum = (s1.len() + s2.len()) as f64;
         let lcs_sim = similarity(s1, s2, None);
         let dist = maximum - 2.0 * lcs_sim;
+
+        dbg!(dist);
+
         if score_cutoff.is_none() || dist <= score_cutoff.unwrap() {
             dist
         } else {
@@ -125,6 +133,9 @@ mod indel {
         let maximum = (s1.len() + s2.len()) as f64;
         let dist = distance(s1, s2, None);
         let norm_dist = if maximum == 0.0 { 0.0 } else { dist / maximum };
+
+        dbg!(norm_dist);
+
         if score_cutoff.is_none() || norm_dist <= score_cutoff.unwrap() {
             norm_dist
         } else {
@@ -154,10 +165,12 @@ mod indel {
         let norm_dist = normalized_distance(&s1_seq, &s2_seq, score_cutoff);
         let norm_sim = 1.0 - norm_dist;
 
-        if score_cutoff.is_none() || norm_dist <= score_cutoff.unwrap() {
+        dbg!(norm_sim);
+
+        if score_cutoff.is_none() || norm_sim >= score_cutoff.unwrap() {
             norm_sim
         } else {
-            1.0
+            0.0
         }
     }
 }
