@@ -3,9 +3,8 @@ mod common;
 pub mod fuzz;
 mod indel;
 mod lcs_seq;
-use pyo3::types::PyString;
 
-fn call_processor(processor: &Bound<'_, PyString>, s: &str) -> Result<String, PyErr> {
+fn call_processor(processor: &Bound<'_, PyAny>, s: &str) -> Result<String, PyErr> {
     let res = processor.call1((s,))?;
     res.extract::<String>()
 }
@@ -17,7 +16,7 @@ fn call_processor(processor: &Bound<'_, PyString>, s: &str) -> Result<String, Py
 fn ratio(
     s1: Option<&str>,
     s2: Option<&str>,
-    processor: Option<&Bound<'_, PyString>>,
+    processor: Option<&Bound<'_, PyAny>>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
     let (processed_s1, processed_s2) = match (s1, s2, processor) {
@@ -27,10 +26,19 @@ fn ratio(
             (processed_s1, processed_s2)
         }
         (Some(s1), Some(s2), None) => (s1.to_string(), s2.to_string()),
-        _ => return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid input")),
+        _ => {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "Invalid input",
+            ))
+        }
     };
 
-    Ok(fuzz::ratio(Some(&processed_s1), Some(&processed_s2), None, score_cutoff))
+    Ok(fuzz::ratio(
+        Some(&processed_s1),
+        Some(&processed_s2),
+        None,
+        score_cutoff,
+    ))
 }
 
 #[pymodule]
