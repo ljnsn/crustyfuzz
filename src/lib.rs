@@ -99,13 +99,35 @@ mod lcs_seq {
 
         dbg!(res);
 
-        if let Some(cutoff) = score_cutoff {
-            if res < cutoff {
-                return 0.0;
-            }
+        if score_cutoff.is_none() || res >= score_cutoff.unwrap() {
+            res
+        } else {
+            score_cutoff.unwrap() + 0.0
         }
+    }
 
-        res
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use crate::common::conv_sequences;
+
+        #[test]
+        fn test_similarity() {
+            let s1 = "this is a test";
+            let s2 = "this is a test!";
+            let (seq1, seq2) = conv_sequences(
+                &s1.chars().collect::<Vec<_>>(),
+                &s2.chars().collect::<Vec<_>>(),
+            );
+
+            let result = similarity(&seq1, &seq2, None);
+
+            assert_eq!(
+                result, 14.0,
+                "Expected similarity of 14.0 for '{}' and '{}'",
+                s1, s2
+            );
+        }
     }
 }
 
