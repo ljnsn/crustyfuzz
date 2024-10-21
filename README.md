@@ -10,7 +10,7 @@ A string matching library for Python written in Rust. It uses the string similar
 The roadmap to feature parity.
 
 - [x] Simple Ratio
-- [ ] Partial Ratio
+- [x] Partial Ratio
 - [ ] Token Sort Ratio
 - [ ] Token Set Ratio
 - [ ] Weighted Ratio
