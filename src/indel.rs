@@ -48,8 +48,6 @@ pub fn distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 
     let lcs_sim = similarity(s1, s2, None);
     let dist = maximum - 2.0 * lcs_sim;
 
-    dbg!(dist);
-
     if score_cutoff.is_none() || dist <= score_cutoff.unwrap() {
         dist
     } else {
@@ -102,8 +100,6 @@ pub fn normalized_distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f6
     let maximum = (s1.len() + s2.len()) as f64;
     let dist = distance(s1, s2, None);
     let norm_dist = if maximum == 0.0 { 0.0 } else { dist / maximum };
-
-    dbg!(norm_dist);
 
     if score_cutoff.is_none() || norm_dist <= score_cutoff.unwrap() {
         norm_dist
@@ -193,8 +189,6 @@ pub fn normalized_similarity<T: Hashable + Clone>(
     let (s1_seq, s2_seq) = conv_sequences(&processed_s1, &processed_s2);
     let norm_dist = normalized_distance(&s1_seq, &s2_seq, score_cutoff);
     let norm_sim = 1.0 - norm_dist;
-
-    dbg!(norm_sim);
 
     if score_cutoff.is_none() || norm_sim >= score_cutoff.unwrap() {
         norm_sim

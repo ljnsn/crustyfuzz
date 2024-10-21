@@ -53,8 +53,6 @@ pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f6
     // calculate the equivalent of popcount(~S) in C. This breaks for len(s1) == 0
     let res = count_zeros_in_binary_string(s, s1) as f64;
 
-    dbg!(res);
-
     if score_cutoff.is_none() || res >= score_cutoff.unwrap() {
         res
     } else {
