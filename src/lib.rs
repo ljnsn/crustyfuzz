@@ -209,6 +209,33 @@ mod indel {
 pub mod fuzz {
     use crate::indel::normalized_similarity;
 
+    /**
+    Calculates the normalized Indel distance.
+
+    Parameters
+    ----------
+    s1 : Option<&str>
+        First string to compare.
+    s2 : Option<&str>
+        Second string to compare.
+    processor: Option<fn(Vec<char>) -> Vec<char>>
+        Optional callable that is used to preprocess the strings before
+        comparing them. Default is None, which deactivates this behaviour.
+    score_cutoff : Option<f64>
+        Optional argument for a score threshold as a float between 0 and 100.
+        For ratio < score_cutoff 0 is returned instead. Default is 0,
+        which deactivates this behaviour.
+
+    Returns
+    -------
+    similarity : f64
+        similarity between s1 and s2 as a float between 0 and 100
+
+    Examples
+    --------
+    >>> fuzz::ratio(Some("this is a test"), Some("this is a test!"), None, None)
+    96.55171966552734
+    */
     pub fn ratio(
         s1: Option<&str>,
         s2: Option<&str>,
