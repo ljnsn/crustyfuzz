@@ -83,7 +83,7 @@ mod lcs_seq {
         let mut block = HashMap::<u64, u64>::new();
         let mut x = 1;
         for ch1 in s1 {
-            block.get_mut(&ch1).map(|v| *v | x);
+            *block.entry(*ch1).or_insert(0) |= x;
             x <<= 1;
         }
 
@@ -110,6 +110,15 @@ mod lcs_seq {
     mod tests {
         use super::*;
         use crate::common::conv_sequences;
+
+        #[test]
+        fn test_count_zeros_in_binary_string() {
+            let s = 0b1010;
+            let s1 = vec![1, 0, 1, 0];
+            let result = count_zeros_in_binary_string(s, &s1);
+
+            assert_eq!(result, 2, "Expected 2 zeros in binary string");
+        }
 
         #[test]
         fn test_similarity() {
