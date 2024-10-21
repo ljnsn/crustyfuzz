@@ -12,14 +12,11 @@ Calculates the length of the longest common subsequence
 
 Parameters
 ----------
-s1 : Sequence[Hashable]
+s1 : &Vec<u64>
     First string to compare.
-s2 : Sequence[Hashable]
+s2 : &Vec<u64>
     Second string to compare.
-processor: callable, optional
-    Optional callable that is used to preprocess the strings before
-    comparing them. Default is None, which deactivates this behaviour.
-score_cutoff : int, optional
+score_cutoff : Option<f64>
     Maximum distance between s1 and s2, that is
     considered as a result. If the similarity is smaller than score_cutoff,
     0 is returned instead. Default is None, which deactivates
@@ -27,7 +24,7 @@ score_cutoff : int, optional
 
 Returns
 -------
-similarity : int
+similarity : f64
     similarity between s1 and s2
 */
 pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 {
