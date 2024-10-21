@@ -1,1 +1,6 @@
+# rust
 /target
+
+# python
+.venv/
+__pycache__/
