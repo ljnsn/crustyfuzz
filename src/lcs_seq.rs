@@ -7,6 +7,29 @@ fn count_zeros_in_binary_string(s: u64, s1: &Vec<u64>) -> usize {
     slice.chars().filter(|&c| c == '0').count()
 }
 
+/**
+Calculates the length of the longest common subsequence
+
+Parameters
+----------
+s1 : Sequence[Hashable]
+    First string to compare.
+s2 : Sequence[Hashable]
+    Second string to compare.
+processor: callable, optional
+    Optional callable that is used to preprocess the strings before
+    comparing them. Default is None, which deactivates this behaviour.
+score_cutoff : int, optional
+    Maximum distance between s1 and s2, that is
+    considered as a result. If the similarity is smaller than score_cutoff,
+    0 is returned instead. Default is None, which deactivates
+    this behaviour.
+
+Returns
+-------
+similarity : int
+    similarity between s1 and s2
+*/
 pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 {
     if s1.is_empty() {
         return 0.0;
@@ -36,6 +59,32 @@ pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f6
         res
     } else {
         score_cutoff.unwrap() + 0.0
+    }
+}
+
+pub fn block_similarity(
+    block: &HashMap<u64, u64>,
+    s1: &Vec<u64>,
+    s2: &Vec<u64>,
+    score_cutoff: Option<f64>,
+) -> f64 {
+    if s1.is_empty() {
+        return 0.0;
+    }
+
+    let mut s = (1 << s1.len()) - 1;
+    for ch2 in s2 {
+        let matches = block.get(&ch2).unwrap_or(&0);
+        let u = s & matches;
+        s = (s + u) | (s - u);
+    }
+
+    let res = count_zeros_in_binary_string(s, s1) as f64;
+
+    if score_cutoff.is_none() || res >= score_cutoff.unwrap() {
+        res
+    } else {
+        0.0
     }
 }
 
