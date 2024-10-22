@@ -407,6 +407,10 @@ fn _partial_ratio_alignment(
 mod tests {
     use super::*;
 
+    fn str_to_vec(s: &str) -> Vec<u64> {
+        s.chars().map(|c| c as u64).collect()
+    }
+
     #[test]
     fn test_ratio() {
         let s1 = "this is a test";
@@ -424,5 +428,90 @@ mod tests {
         let s2 = "this is a test!";
         let result = _partial_ratio(Some(s1), Some(s2), None);
         assert_eq!(result, 100.0, "Expected 100.0");
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_identical() {
+        let s1 = str_to_vec("abcd");
+        let s2 = str_to_vec("abcd");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.0);
+        assert_eq!(result.score, 100.0);
+        assert_eq!(result.src_start, 0);
+        assert_eq!(result.src_end, 4);
+        assert_eq!(result.dest_start, 0);
+        assert_eq!(result.dest_end, 4);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_substring() {
+        let s1 = str_to_vec("bcd");
+        let s2 = str_to_vec("abcde");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.0);
+        assert_eq!(result.score, 100.0);
+        assert_eq!(result.src_start, 0);
+        assert_eq!(result.src_end, 3);
+        assert_eq!(result.dest_start, 1);
+        assert_eq!(result.dest_end, 4);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_partial_match() {
+        let s1 = str_to_vec("abc");
+        let s2 = str_to_vec("bcde");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.0);
+        assert!((result.score - 80.0).abs() < 1e-10);
+        assert_eq!(result.src_start, 0);
+        assert_eq!(result.src_end, 3);
+        assert_eq!(result.dest_start, 0);
+        assert_eq!(result.dest_end, 2);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_partial_match_score_cutoff() {
+        let s1 = str_to_vec("abc");
+        let s2 = str_to_vec("bcde");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.9);
+        assert_eq!(result.score, 0.0);
+        assert_eq!(result.src_start, 0);
+        assert_eq!(result.src_end, 3);
+        assert_eq!(result.dest_start, 0);
+        assert_eq!(result.dest_end, 3);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_no_match() {
+        let s1 = str_to_vec("abc");
+        let s2 = str_to_vec("def");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.0);
+        assert_eq!(result.score, 0.0);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_score_cutoff() {
+        let s1 = str_to_vec("abc");
+        let s2 = str_to_vec("abcde");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.9);
+        assert_eq!(result.score, 100.0);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_empty_s1() {
+        let s1 = str_to_vec("");
+        let s2 = str_to_vec("abc");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.0);
+        assert_eq!(result.score, 0.0);
+    }
+
+    #[test]
+    fn test_partial_ratio_short_needle_certain_string() {
+        let s1 = str_to_vec("cetain");
+        let s2 = str_to_vec("a certain string");
+        let result = partial_ratio_short_needle(&s1, &s2, 0.0);
+        dbg!(&result);
+        assert!((result.score - 83.33333333333334).abs() < 1e-10);
+        assert_eq!(result.src_start, 0);
+        assert_eq!(result.src_end, 6);
+        assert_eq!(result.dest_start, 2);
+        assert_eq!(result.dest_end, 8);
     }
 }
