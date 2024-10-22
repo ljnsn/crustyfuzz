@@ -9,7 +9,10 @@ mod crustyfuzz {
     use super::*;
 
     #[pymodule]
-    mod distance {}
+    mod distance {
+        #[pymodule_export]
+        use crate::distance::models::ScoreAlignment;
+    }
 
     #[pymodule]
     mod fuzz {
