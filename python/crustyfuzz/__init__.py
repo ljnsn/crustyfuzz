@@ -1,4 +1,4 @@
-"""CrystyFuzz."""
+"""Rusty string matching library."""
 
 from .crustyfuzz import *  # noqa: F403
 
