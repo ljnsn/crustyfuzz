@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 mod common;
-pub mod distance;
-pub mod fuzz;
+mod distance;
+mod fuzz;
 
 fn call_processor(processor: &Bound<'_, PyAny>, s: Option<&str>) -> Result<String, PyErr> {
     let res = processor.call1((s,))?;
