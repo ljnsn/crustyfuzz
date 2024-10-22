@@ -67,33 +67,19 @@ pub fn ratio(
     Ok(_ratio(
         processed_s1.as_deref(),
         processed_s2.as_deref(),
-        None,
         score_cutoff,
     ))
 }
 
-fn _ratio(
-    s1: Option<&str>,
-    s2: Option<&str>,
-    processor: Option<fn(Vec<char>) -> Vec<char>>,
-    score_cutoff: Option<f64>,
-) -> f64 {
+fn _ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>) -> f64 {
     match (s1, s2) {
         (Some(s1), Some(s2)) => {
-            if s1.is_empty() || s2.is_empty() {
-                return 0.0;
-            }
-
-            let mut score_cutoff = score_cutoff;
-            if let Some(cutoff) = score_cutoff {
-                score_cutoff = Some(cutoff / 100.0);
-            }
+            let score_cutoff = score_cutoff.map(|cutoff| cutoff / 100.0);
 
             let s1_vec: Vec<char> = s1.chars().collect();
             let s2_vec: Vec<char> = s2.chars().collect();
 
-            let score =
-                normalized_similarity(Some(&s1_vec), Some(&s2_vec), processor, score_cutoff);
+            let score = normalized_similarity(Some(&s1_vec), Some(&s2_vec), None, score_cutoff);
             score * 100.0
         }
         _ => 0.0,
@@ -175,18 +161,12 @@ pub fn partial_ratio(
     Ok(_partial_ratio(
         processed_s1.as_deref(),
         processed_s2.as_deref(),
-        None,
         score_cutoff,
     ))
 }
 
-fn _partial_ratio(
-    s1: Option<&str>,
-    s2: Option<&str>,
-    processor: Option<fn(Vec<char>) -> Vec<char>>,
-    score_cutoff: Option<f64>,
-) -> f64 {
-    let alignment = partial_ratio_alignment(s1, s2, processor, score_cutoff);
+fn _partial_ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>) -> f64 {
+    let alignment = _partial_ratio_alignment(s1, s2, score_cutoff);
 
     if alignment.is_none() {
         return 0.0;
@@ -195,7 +175,8 @@ fn _partial_ratio(
     alignment.unwrap().score
 }
 
-struct ScoreAlignment {
+#[pyclass]
+pub struct ScoreAlignment {
     score: f64,
     src_start: usize,
     src_end: usize,
@@ -333,10 +314,28 @@ Using the alignment information it is possible to calculate the same fuzz.ratio
 >>> fuzz.ratio(s1[res.src_start:res.src_end], s2[res.dest_start:res.dest_end])
 83.33333333333334
 */
-fn partial_ratio_alignment(
+#[pyfunction]
+#[pyo3(
+    signature = (s1, s2, processor=None, score_cutoff=None)
+)]
+pub fn partial_ratio_alignment(
     s1: Option<&str>,
     s2: Option<&str>,
-    processor: Option<fn(Vec<char>) -> Vec<char>>,
+    processor: Option<&Bound<'_, PyAny>>,
+    score_cutoff: Option<f64>,
+) -> PyResult<Option<ScoreAlignment>> {
+    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
+
+    Ok(_partial_ratio_alignment(
+        processed_s1.as_deref(),
+        processed_s2.as_deref(),
+        score_cutoff,
+    ))
+}
+
+fn _partial_ratio_alignment(
+    s1: Option<&str>,
+    s2: Option<&str>,
     score_cutoff: Option<f64>,
 ) -> Option<ScoreAlignment> {
     if s1.is_none() || s2.is_none() {
@@ -360,12 +359,7 @@ fn partial_ratio_alignment(
     let s1_vec: Vec<char> = s1.chars().collect();
     let s2_vec: Vec<char> = s2.chars().collect();
 
-    let (processed_s1, processed_s2) = match processor {
-        Some(proc) => (proc(s1_vec.to_vec()), proc(s2_vec.to_vec())),
-        None => (s1_vec.to_vec(), s2_vec.to_vec()),
-    };
-
-    let (s1, s2) = conv_sequences(&processed_s1, &processed_s2);
+    let (s1, s2) = conv_sequences(&s1_vec, &s2_vec);
     let shorter;
     let longer;
 
@@ -417,9 +411,9 @@ mod tests {
     fn test_ratio() {
         let s1 = "this is a test";
         let s2 = "this is a test!";
-        let result = ratio(Some(s1), Some(s2), None, None);
+        let result = _ratio(Some(s1), Some(s2), None);
         assert!(
-            (result.unwrap() - 96.55171966552734).abs() < 1e-5,
+            (result - 96.55171966552734).abs() < 1e-5,
             "Expected approximately 96.55171966552734"
         );
     }
@@ -428,7 +422,7 @@ mod tests {
     fn test_partial_ratio() {
         let s1 = "this is a test";
         let s2 = "this is a test!";
-        let result = partial_ratio(Some(s1), Some(s2), None, None);
-        assert_eq!(result.unwrap(), 100.0, "Expected 100.0");
+        let result = _partial_ratio(Some(s1), Some(s2), None);
+        assert_eq!(result, 100.0, "Expected 100.0");
     }
 }

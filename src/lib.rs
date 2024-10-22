@@ -14,7 +14,7 @@ mod crustyfuzz {
     #[pymodule]
     mod fuzz {
         #[pymodule_export]
-        use crate::fuzz::{partial_ratio, ratio};
+        use crate::fuzz::{partial_ratio, partial_ratio_alignment, ratio};
     }
 
     #[pymodule]
