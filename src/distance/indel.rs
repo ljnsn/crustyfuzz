@@ -203,7 +203,7 @@ pub fn block_normalized_similarity(
     s2: &Vec<u64>,
     score_cutoff: Option<f64>,
 ) -> f64 {
-    let norm_dist = block_normalized_distance(block, s1, s2, score_cutoff);
+    let norm_dist = block_normalized_distance(block, s1, s2, None);
     let norm_sim = 1.0 - norm_dist;
 
     if score_cutoff.is_none() || norm_sim >= score_cutoff.unwrap() {
