@@ -1,5 +1,5 @@
-use crate::common::common::conv_sequences;
-use crate::indel::{block_normalized_similarity, normalized_similarity};
+use crate::common::conv_sequences;
+use crate::distance::indel::{block_normalized_similarity, normalized_similarity};
 use std::collections::{HashMap, HashSet};
 
 /**

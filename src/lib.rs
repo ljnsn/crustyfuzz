@@ -1,8 +1,7 @@
 use pyo3::prelude::*;
 mod common;
+pub mod distance;
 pub mod fuzz;
-mod indel;
-mod lcs_seq;
 
 fn call_processor(processor: &Bound<'_, PyAny>, s: Option<&str>) -> Result<String, PyErr> {
     let res = processor.call1((s,))?;
@@ -69,8 +68,17 @@ mod crustyfuzz {
     use super::*;
 
     #[pymodule]
+    mod distance {}
+
+    #[pymodule]
     mod fuzz {
         #[pymodule_export]
         use super::{partial_ratio, ratio};
     }
+
+    #[pymodule]
+    mod process {}
+
+    #[pymodule]
+    mod utils {}
 }

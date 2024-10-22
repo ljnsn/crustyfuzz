@@ -1,6 +1,6 @@
-use crate::common::common::{conv_sequences, Hashable};
-use crate::common::utils::utils::is_none;
-use crate::lcs_seq::{block_similarity, similarity};
+use crate::common::utils::is_none;
+use crate::common::{conv_sequences, Hashable};
+use crate::distance::lcs_seq::{block_similarity, similarity};
 use std::clone::Clone;
 use std::collections::HashMap;
 

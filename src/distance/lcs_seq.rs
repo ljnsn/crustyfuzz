@@ -86,7 +86,7 @@ pub fn block_similarity(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::common::conv_sequences;
+    use crate::common::conv_sequences;
 
     #[test]
     fn test_count_zeros_in_binary_string() {
