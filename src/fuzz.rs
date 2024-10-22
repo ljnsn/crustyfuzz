@@ -1,6 +1,29 @@
 use crate::common::conv_sequences;
 use crate::distance::indel::{block_normalized_similarity, normalized_similarity};
+use pyo3::prelude::*;
 use std::collections::{HashMap, HashSet};
+
+// call a python processor function
+fn call_processor(processor: &Bound<'_, PyAny>, s: Option<&str>) -> Result<String, PyErr> {
+    let res = processor.call1((s,))?;
+    res.extract::<String>()
+}
+
+// process inputs with a given processor
+fn process_inputs(
+    s1: Option<&str>,
+    s2: Option<&str>,
+    processor: Option<&Bound<'_, PyAny>>,
+) -> PyResult<(Option<String>, Option<String>)> {
+    match processor {
+        Some(proc) => {
+            let processed_s1 = s1.map(|s| call_processor(proc, Some(s))).transpose()?;
+            let processed_s2 = s2.map(|s| call_processor(proc, Some(s))).transpose()?;
+            Ok((processed_s1, processed_s2))
+        }
+        None => Ok((s1.map(ToString::to_string), s2.map(ToString::to_string))),
+    }
+}
 
 /**
 Calculates the normalized Indel distance.
@@ -29,7 +52,27 @@ Examples
 >>> fuzz::ratio(Some("this is a test"), Some("this is a test!"), None, None)
 96.55171966552734
 */
+#[pyfunction]
+#[pyo3(
+    signature = (s1, s2, processor=None, score_cutoff=None)
+)]
 pub fn ratio(
+    s1: Option<&str>,
+    s2: Option<&str>,
+    processor: Option<&Bound<'_, PyAny>>,
+    score_cutoff: Option<f64>,
+) -> PyResult<f64> {
+    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
+
+    Ok(_ratio(
+        processed_s1.as_deref(),
+        processed_s2.as_deref(),
+        None,
+        score_cutoff,
+    ))
+}
+
+fn _ratio(
     s1: Option<&str>,
     s2: Option<&str>,
     processor: Option<fn(Vec<char>) -> Vec<char>>,
@@ -117,7 +160,27 @@ Examples
 >>> fuzz.partial_ratio("this is a test", "this is a test!")
 100.0
 */
+#[pyfunction]
+#[pyo3(
+    signature = (s1, s2, processor=None, score_cutoff=None)
+)]
 pub fn partial_ratio(
+    s1: Option<&str>,
+    s2: Option<&str>,
+    processor: Option<&Bound<'_, PyAny>>,
+    score_cutoff: Option<f64>,
+) -> PyResult<f64> {
+    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
+
+    Ok(_partial_ratio(
+        processed_s1.as_deref(),
+        processed_s2.as_deref(),
+        None,
+        score_cutoff,
+    ))
+}
+
+fn _partial_ratio(
     s1: Option<&str>,
     s2: Option<&str>,
     processor: Option<fn(Vec<char>) -> Vec<char>>,
@@ -356,7 +419,7 @@ mod tests {
         let s2 = "this is a test!";
         let result = ratio(Some(s1), Some(s2), None, None);
         assert!(
-            (result - 96.55171966552734).abs() < 1e-5,
+            (result.unwrap() - 96.55171966552734).abs() < 1e-5,
             "Expected approximately 96.55171966552734"
         );
     }
@@ -366,6 +429,6 @@ mod tests {
         let s1 = "this is a test";
         let s2 = "this is a test!";
         let result = partial_ratio(Some(s1), Some(s2), None, None);
-        assert_eq!(result, 100.0, "Expected 100.0");
+        assert_eq!(result.unwrap(), 100.0, "Expected 100.0");
     }
 }
