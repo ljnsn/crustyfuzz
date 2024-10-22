@@ -42,6 +42,12 @@ fn ratio(
 }
 
 #[pymodule]
-fn crustyfuzz(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(ratio, m)?)
+mod crustyfuzz {
+    use super::*;
+
+    #[pymodule]
+    mod fuzz {
+        #[pymodule_export]
+        use super::ratio;
+    }
 }
