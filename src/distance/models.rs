@@ -2,7 +2,7 @@ use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 
 #[pyclass(eq, mapping, get_all)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct ScoreAlignment {
     pub score: f64,
     pub src_start: usize,
