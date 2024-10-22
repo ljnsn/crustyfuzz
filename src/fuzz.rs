@@ -169,11 +169,10 @@ pub fn partial_ratio(
 fn _partial_ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>) -> f64 {
     let alignment = _partial_ratio_alignment(s1, s2, score_cutoff);
 
-    if alignment.is_none() {
-        return 0.0;
+    match alignment {
+        Some(alignment) => alignment.score,
+        None => 0.0,
     }
-
-    alignment.unwrap().score
 }
 
 /**
