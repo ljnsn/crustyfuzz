@@ -21,5 +21,5 @@ mod crustyfuzz {
     mod process {}
 
     #[pymodule]
-    mod utils {}
+    mod rs_utils {}
 }
