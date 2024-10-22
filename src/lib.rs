@@ -14,13 +14,14 @@ fn process_inputs(
     s2: Option<&str>,
     processor: Option<&Bound<'_, PyAny>>,
 ) -> PyResult<(Option<String>, Option<String>)> {
-    if let Some(proc) = processor {
-        let processed_s1 = call_processor(proc, s1)?;
-        let processed_s2 = call_processor(proc, s2)?;
-        return Ok((Some(processed_s1), Some(processed_s2)));
+    match processor {
+        Some(proc) => {
+            let processed_s1 = s1.map(|s| call_processor(proc, Some(s))).transpose()?;
+            let processed_s2 = s2.map(|s| call_processor(proc, Some(s))).transpose()?;
+            Ok((processed_s1, processed_s2))
+        }
+        None => Ok((s1.map(ToString::to_string), s2.map(ToString::to_string))),
     }
-
-    Ok((s1.map(|s| s.to_string()), s2.map(|s| s.to_string())))
 }
 
 #[pyfunction]
