@@ -179,11 +179,14 @@ fn _partial_ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>)
 implementation of partial_ratio for needles <= 64. assumes s1 is already the
 shorter string
 */
-fn partial_ratio_short_needle(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: f64) -> ScoreAlignment {
+fn partial_ratio_short_needle(
+    s1: &Vec<u64>,
+    s2: &Vec<u64>,
+    mut score_cutoff: f64,
+) -> ScoreAlignment {
     let s1_char_set = s1.iter().cloned().collect::<HashSet<_>>();
     let len1 = s1.len();
     let len2 = s2.len();
-    let mut score_cutoff = score_cutoff;
 
     let mut res = ScoreAlignment {
         score: 0.0,
@@ -221,7 +224,13 @@ fn partial_ratio_short_needle(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: f64) -
     }
 
     for i in 0..(len2 - len1) {
-        let sustr_last = s2[i + len1 - 1];
+        let curr_len = i + len1;
+        let idx = if curr_len == 0 {
+            len2 - 1
+        } else {
+            curr_len - 1
+        };
+        let sustr_last = s2[idx];
         if !s1_char_set.contains(&sustr_last) {
             continue;
         }
@@ -264,7 +273,7 @@ fn partial_ratio_short_needle(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: f64) -
         }
     }
 
-    res.score = res.score * 100.0;
+    res.score *= 100.0;
     res
 }
 
@@ -337,7 +346,7 @@ fn _partial_ratio_alignment(
     let s2 = s2.unwrap();
     let mut score_cutoff = score_cutoff.unwrap_or(0.0);
 
-    if s1.is_empty() || s2.is_empty() {
+    if s1.is_empty() && s2.is_empty() {
         return Some(ScoreAlignment {
             score: 100.0,
             src_start: 0,
