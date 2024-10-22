@@ -1,5 +1,6 @@
 use crate::common::conv_sequences;
 use crate::distance::indel::{block_normalized_similarity, normalized_similarity};
+use crate::distance::models::ScoreAlignment;
 use pyo3::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -173,15 +174,6 @@ fn _partial_ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>)
     }
 
     alignment.unwrap().score
-}
-
-#[pyclass]
-pub struct ScoreAlignment {
-    score: f64,
-    src_start: usize,
-    src_end: usize,
-    dest_start: usize,
-    dest_end: usize,
 }
 
 /**
