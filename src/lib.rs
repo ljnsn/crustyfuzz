@@ -4,27 +4,23 @@ pub mod fuzz;
 mod indel;
 mod lcs_seq;
 
-fn call_processor(processor: &Bound<'_, PyAny>, s: &str) -> Result<String, PyErr> {
+fn call_processor(processor: &Bound<'_, PyAny>, s: Option<&str>) -> Result<String, PyErr> {
     let res = processor.call1((s,))?;
     res.extract::<String>()
 }
 
-fn process_and_validate_inputs(
+fn process_inputs(
     s1: Option<&str>,
     s2: Option<&str>,
     processor: Option<&Bound<'_, PyAny>>,
-) -> PyResult<(String, String)> {
-    match (s1, s2, processor) {
-        (Some(s1), Some(s2), Some(proc)) => {
-            let processed_s1 = call_processor(proc, s1)?;
-            let processed_s2 = call_processor(proc, s2)?;
-            Ok((processed_s1, processed_s2))
-        }
-        (Some(s1), Some(s2), None) => Ok((s1.to_string(), s2.to_string())),
-        _ => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
-            "Invalid input",
-        )),
+) -> PyResult<(Option<String>, Option<String>)> {
+    if let Some(proc) = processor {
+        let processed_s1 = call_processor(proc, s1)?;
+        let processed_s2 = call_processor(proc, s2)?;
+        return Ok((Some(processed_s1), Some(processed_s2)));
     }
+
+    Ok((s1.map(|s| s.to_string()), s2.map(|s| s.to_string())))
 }
 
 #[pyfunction]
@@ -37,11 +33,11 @@ fn ratio(
     processor: Option<&Bound<'_, PyAny>>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (processed_s1, processed_s2) = process_and_validate_inputs(s1, s2, processor)?;
+    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
 
     Ok(fuzz::ratio(
-        Some(&processed_s1),
-        Some(&processed_s2),
+        processed_s1.as_deref(),
+        processed_s2.as_deref(),
         None,
         score_cutoff,
     ))
@@ -57,11 +53,11 @@ fn partial_ratio(
     processor: Option<&Bound<'_, PyAny>>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (processed_s1, processed_s2) = process_and_validate_inputs(s1, s2, processor)?;
+    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
 
     Ok(fuzz::partial_ratio(
-        Some(&processed_s1),
-        Some(&processed_s2),
+        processed_s1.as_deref(),
+        processed_s2.as_deref(),
         None,
         score_cutoff,
     ))
