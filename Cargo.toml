@@ -8,6 +8,7 @@ name = "crustyfuzz"
 crate-type = ["cdylib"]
 
 [dependencies]
+num-bigint = "0.4.6"
 
 [dependencies.pyo3]
 version = "0.22.5"
