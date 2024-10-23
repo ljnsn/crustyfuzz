@@ -1,7 +1,37 @@
 use num_bigint::BigUint;
 use std::collections::HashMap;
+use std::fmt::Binary;
 
-fn count_zeros_in_binary_string<T: std::fmt::Binary>(s: T, s1: &Vec<u64>) -> usize {
+/**
+Counts zero bits in the least significant `bit_length` bits of a number
+
+# Arguments
+* `num` - The number to examine
+* `bit_length` - Number of least significant bits to consider (1-64)
+
+# Returns
+Number of zero bits in the specified range
+
+# Panics
+Panics if `bit_length` is 0 or greater than 64
+*/
+#[inline]
+const fn count_trailing_zeros_in_range(num: u64, bit_length: usize) -> usize {
+    assert!(
+        bit_length > 0 && bit_length <= 64,
+        "bit_length must be between 1 and 64"
+    );
+
+    let mask = match bit_length {
+        64 => u64::MAX,
+        n => (1_u64 << n).wrapping_sub(1),
+    };
+
+    bit_length - (num & mask).count_ones() as usize
+}
+
+// Counts the number of zeros in a binary string
+fn count_zeros_in_binary_string<T: Binary>(s: T, s1: &Vec<u64>) -> usize {
     let binary_string = format!("{:b}", s);
     let start_index = binary_string.len().saturating_sub(s1.len());
     let slice = &binary_string[start_index..];
@@ -99,6 +129,13 @@ mod tests {
     }
 
     #[test]
+    fn test_count_trailing_zeros_in_range() {
+        assert_eq!(count_trailing_zeros_in_range(0b1010, 4), 2);
+        assert_eq!(count_trailing_zeros_in_range(0, 64), 64);
+        assert_eq!(count_trailing_zeros_in_range(u64::MAX, 64), 0);
+    }
+
+    #[test]
     fn test_similarity() {
         let s1 = "this is a test";
         let s2 = "this is a test!";
@@ -111,8 +148,8 @@ mod tests {
 
         assert_eq!(
             result, 14.0,
-            "Expected similarity of 14.0 for '{}' and '{}'",
-            s1, s2
+            "Expected similarity of 14.0 for '{}' and '{}', got {}",
+            s1, s2, result
         );
     }
 }
