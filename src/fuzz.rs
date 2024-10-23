@@ -224,6 +224,7 @@ fn partial_ratio_short_needle(
     }
 
     for i in 0..(len2 - len1) {
+        // TODO: review this. do we really want to take from the end?
         let curr_len = i + len1;
         let idx = if curr_len == 0 {
             len2 - 1
@@ -372,7 +373,7 @@ fn _partial_ratio_alignment(
     }
 
     let mut res = partial_ratio_short_needle(&shorter, &longer, score_cutoff / 100.0);
-    if res.score != 100.0 && s1.len() == s2.len() {
+    if (res.score != 100.0) && (s1.len() == s2.len()) {
         score_cutoff = f64::max(score_cutoff, res.score);
         let res2 = partial_ratio_short_needle(&longer, &shorter, score_cutoff / 100.0);
         if res2.score > res.score {
