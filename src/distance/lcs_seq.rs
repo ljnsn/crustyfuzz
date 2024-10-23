@@ -1,6 +1,7 @@
+use num_bigint::BigUint;
 use std::collections::HashMap;
 
-fn count_zeros_in_binary_string(s: u64, s1: &Vec<u64>) -> usize {
+fn count_zeros_in_binary_string<T: std::fmt::Binary>(s: T, s1: &Vec<u64>) -> usize {
     let binary_string = format!("{:b}", s);
     let start_index = binary_string.len().saturating_sub(s1.len());
     let slice = &binary_string[start_index..];
@@ -67,11 +68,11 @@ pub fn block_similarity(
         return 0.0;
     }
 
-    let mut s = (1 << s1.len()) - 1;
+    let mut s = (BigUint::from(1u32) << s1.len()) - BigUint::from(1u32);
     for ch2 in s2 {
-        let matches = block.get(&ch2).unwrap_or(&0);
-        let u = s & matches;
-        s = (s + u) | (s - u);
+        let matches = BigUint::from(*block.get(&ch2).unwrap_or(&0));
+        let u = &s & &matches;
+        s = (&s + &u) | (&s - &u);
     }
 
     let res = count_zeros_in_binary_string(s, s1) as f64;
