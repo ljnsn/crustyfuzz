@@ -8,21 +8,21 @@ mod fuzz;
 mod crustyfuzz {
     use super::*;
 
-    #[pymodule]
+    #[pymodule(submodule)]
     mod distance {
         #[pymodule_export]
         use crate::distance::models::ScoreAlignment;
     }
 
-    #[pymodule]
+    #[pymodule(submodule)]
     mod fuzz {
         #[pymodule_export]
         use crate::fuzz::{partial_ratio, partial_ratio_alignment, ratio};
     }
 
-    #[pymodule]
+    #[pymodule(submodule)]
     mod process {}
 
-    #[pymodule]
+    #[pymodule(submodule)]
     mod rs_utils {}
 }
