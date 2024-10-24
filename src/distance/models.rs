@@ -31,7 +31,7 @@ impl IntoPy<PyObject> for IndexResult {
 #[pymethods]
 impl ScoreAlignment {
     #[new]
-    fn __new__(
+    fn py_new(
         score: f64,
         src_start: usize,
         src_end: usize,
