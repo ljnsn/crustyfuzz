@@ -1,6 +1,7 @@
 pub fn is_none<T>(s: Option<&[T]>) -> bool {
+    // TODO: check for nan
     match s {
-        Some(slice) => slice.is_empty(),
+        Some(_) => false,
         None => true,
     }
 }
