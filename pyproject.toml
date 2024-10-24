@@ -37,3 +37,6 @@ dev-dependencies = [
   "pytest>=8.3.3",
   "rapidfuzz>=3.9.7",
 ]
+
+[tool.mypy]
+exclude = ["crustyfuzz/__init__.py$"]
