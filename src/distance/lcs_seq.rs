@@ -63,7 +63,7 @@ pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f6
         return 0.0;
     }
 
-    let mut s = (1 << s1.len()) - 1;
+    let mut s = (BigUint::from(1u32) << s1.len()) - BigUint::from(1u32);
     let mut block = HashMap::<u64, u64>::new();
     let mut x = 1;
     for ch1 in s1 {
@@ -72,9 +72,9 @@ pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f6
     }
 
     for ch2 in s2 {
-        let matches = block.get(&ch2).unwrap_or(&0);
-        let u = s & matches;
-        s = (s + u) | (s - u);
+        let matches = BigUint::from(*block.get(&ch2).unwrap_or(&0));
+        let u = &s & &matches;
+        s = (&s + &u) | (&s - &u);
     }
 
     // let s1_s: Vec<_> = s1.iter().map(|v| v.clone()).collect();
