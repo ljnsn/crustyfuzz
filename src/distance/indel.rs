@@ -83,9 +83,6 @@ s1 : Sequence[Hashable]
     First string to compare.
 s2 : Sequence[Hashable]
     Second string to compare.
-processor: callable, optional
-    Optional callable that is used to preprocess the strings before
-    comparing them. Default is None, which deactivates this behaviour.
 score_cutoff : float, optional
     Optional argument for a score threshold as a float between 0 and 1.0.
     For norm_dist > score_cutoff 1.0 is returned instead. Default is 1.0,
@@ -97,6 +94,10 @@ norm_dist : float
     normalized distance between s1 and s2 as a float between 0 and 1.0
 */
 pub fn normalized_distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 {
+    if is_none(Some(s1)) || is_none(Some(s2)) {
+        return 1.0;
+    }
+
     let maximum = (s1.len() + s2.len()) as f64;
     let dist = distance(s1, s2, None);
     let norm_dist = if maximum == 0.0 { 0.0 } else { dist / maximum };
