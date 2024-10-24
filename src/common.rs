@@ -49,6 +49,13 @@ impl Hashable for Vec<u8> {
 
 pub fn conv_sequence<T: Hashable>(s: &[T]) -> Vec<u64> {
     s.iter().map(|elem| elem.hash_value()).collect()
+impl Hashable for Vec<char> {
+    fn hash_value(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.iter().for_each(|c| c.hash(&mut hasher));
+        hasher.finish()
+    }
+}
 }
 
 pub fn conv_sequences<T: Hashable>(s1: &[T], s2: &[T]) -> (Vec<u64>, Vec<u64>) {
