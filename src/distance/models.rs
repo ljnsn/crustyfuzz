@@ -1,6 +1,14 @@
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 
+#[derive(FromPyObject)]
+enum IndexResult {
+    #[pyo3(transparent, annotation = "int")]
+    Integer(usize),
+    #[pyo3(transparent, annotation = "float")]
+    Float(f64),
+}
+
 #[pyclass(eq, mapping, get_all, module = "crustyfuzz.distance")]
 #[derive(PartialEq, Debug)]
 pub struct ScoreAlignment {
@@ -9,14 +17,6 @@ pub struct ScoreAlignment {
     pub src_end: usize,
     pub dest_start: usize,
     pub dest_end: usize,
-}
-
-#[derive(FromPyObject)]
-enum IndexResult {
-    #[pyo3(transparent, annotation = "int")]
-    Integer(usize),
-    #[pyo3(transparent, annotation = "float")]
-    Float(f64),
 }
 
 impl IntoPy<PyObject> for IndexResult {
@@ -30,6 +30,23 @@ impl IntoPy<PyObject> for IndexResult {
 
 #[pymethods]
 impl ScoreAlignment {
+    #[new]
+    fn __new__(
+        score: f64,
+        src_start: usize,
+        src_end: usize,
+        dest_start: usize,
+        dest_end: usize,
+    ) -> Self {
+        ScoreAlignment {
+            score,
+            src_start,
+            src_end,
+            dest_start,
+            dest_end,
+        }
+    }
+
     fn __len__(&self) -> usize {
         5
     }
