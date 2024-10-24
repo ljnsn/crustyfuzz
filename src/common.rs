@@ -1,4 +1,5 @@
 pub mod utils;
+use std::any::TypeId;
 
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -47,8 +48,6 @@ impl Hashable for Vec<u8> {
     }
 }
 
-pub fn conv_sequence<T: Hashable>(s: &[T]) -> Vec<u64> {
-    s.iter().map(|elem| elem.hash_value()).collect()
 impl Hashable for Vec<char> {
     fn hash_value(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
@@ -56,6 +55,9 @@ impl Hashable for Vec<char> {
         hasher.finish()
     }
 }
+
+pub fn conv_sequence<T: Hashable>(s: &[T]) -> Vec<u64> {
+    s.iter().map(|elem| elem.hash_value()).collect()
 }
 
 pub fn conv_sequences<T: Hashable>(s1: &[T], s2: &[T]) -> (Vec<u64>, Vec<u64>) {
