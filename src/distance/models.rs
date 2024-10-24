@@ -1,7 +1,7 @@
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
 
-#[pyclass(eq, mapping, get_all)]
+#[pyclass(eq, mapping, get_all, module = "crustyfuzz.distance")]
 #[derive(PartialEq, Debug)]
 pub struct ScoreAlignment {
     pub score: f64,
