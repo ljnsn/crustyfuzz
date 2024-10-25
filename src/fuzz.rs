@@ -1,6 +1,7 @@
 use crate::common::conv_sequences;
 use crate::distance::indel::{block_normalized_similarity, normalized_similarity};
 use crate::distance::models::ScoreAlignment;
+use num_bigint::BigUint;
 use pyo3::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -196,10 +197,10 @@ fn partial_ratio_short_needle(
         dest_end: len1,
     };
 
-    let mut block = HashMap::<u64, u64>::new();
-    let mut x = 1;
+    let mut block = HashMap::<u64, BigUint>::new();
+    let mut x = BigUint::from(1u32);
     for ch1 in s1 {
-        *block.entry(*ch1).or_insert(0) |= x;
+        *block.entry(*ch1).or_insert(BigUint::from(0u32)) |= &x;
         x <<= 1;
     }
 
