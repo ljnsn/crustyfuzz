@@ -1,6 +1,7 @@
 use crate::common::utils::is_none;
 use crate::common::{conv_sequences, Hashable};
 use crate::distance::lcs_seq::{block_similarity, similarity};
+use ::num_bigint::BigUint;
 use std::clone::Clone;
 use std::collections::HashMap;
 
@@ -56,19 +57,19 @@ pub fn distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f64 
 }
 
 pub fn block_distance(
-    block: &HashMap<u64, u64>,
+    block: &HashMap<u64, BigUint>,
     s1: &Vec<u64>,
     s2: &Vec<u64>,
     score_cutoff: Option<f64>,
-) -> f64 {
-    let maximum = (s1.len() + s2.len()) as f64;
+) -> u32 {
+    let maximum = (s1.len() + s2.len()) as u32;
     let lcs_sim = block_similarity(block, s1, s2, None);
-    let dist = maximum - 2.0 * lcs_sim;
+    let dist = maximum - 2 * lcs_sim;
 
-    if score_cutoff.is_none() || dist <= score_cutoff.unwrap() {
+    if score_cutoff.is_none() || (dist as f64) <= score_cutoff.unwrap() {
         dist
     } else {
-        score_cutoff.unwrap() + 1.0
+        score_cutoff.unwrap() as u32 + 1
     }
 }
 
@@ -110,14 +111,18 @@ pub fn normalized_distance(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f6
 }
 
 pub fn block_normalized_distance(
-    block: &HashMap<u64, u64>,
+    block: &HashMap<u64, BigUint>,
     s1: &Vec<u64>,
     s2: &Vec<u64>,
     score_cutoff: Option<f64>,
 ) -> f64 {
-    let maximum = (s1.len() + s2.len()) as f64;
+    let maximum = s1.len() + s2.len();
     let dist = block_distance(block, s1, s2, None);
-    let norm_dist = if maximum == 0.0 { 0.0 } else { dist / maximum };
+    let norm_dist = if maximum == 0 {
+        0.0
+    } else {
+        dist as f64 / maximum as f64
+    };
 
     if score_cutoff.is_none() || norm_dist <= score_cutoff.unwrap() {
         norm_dist
@@ -199,7 +204,7 @@ pub fn normalized_similarity<T: Hashable + Clone>(
 }
 
 pub fn block_normalized_similarity(
-    block: &HashMap<u64, u64>,
+    block: &HashMap<u64, BigUint>,
     s1: &Vec<u64>,
     s2: &Vec<u64>,
     score_cutoff: Option<f64>,

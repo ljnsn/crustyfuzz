@@ -33,7 +33,9 @@ const fn count_trailing_zeros_in_range(num: u64, bit_length: usize) -> usize {
 // Counts the number of zeros in a binary string
 fn count_zeros_in_binary_string<T: Binary>(s: T, s1: &Vec<u64>) -> usize {
     let binary_string = format!("{:b}", s);
-    let start_index = binary_string.len().saturating_sub(s1.len());
+    // the binary string should always be longer than s1
+    assert!(binary_string.len() >= s1.len());
+    let start_index = binary_string.len() - s1.len();
     let slice = &binary_string[start_index..];
     slice.chars().filter(|&c| c == '0').count()
 }
@@ -89,28 +91,29 @@ pub fn similarity(s1: &Vec<u64>, s2: &Vec<u64>, score_cutoff: Option<f64>) -> f6
 }
 
 pub fn block_similarity(
-    block: &HashMap<u64, u64>,
+    block: &HashMap<u64, BigUint>,
     s1: &Vec<u64>,
     s2: &Vec<u64>,
     score_cutoff: Option<f64>,
-) -> f64 {
+) -> u32 {
     if s1.is_empty() {
-        return 0.0;
+        return 0;
     }
 
+    let zero = BigUint::from(0u32);
     let mut s = (BigUint::from(1u32) << s1.len()) - BigUint::from(1u32);
     for ch2 in s2 {
-        let matches = BigUint::from(*block.get(&ch2).unwrap_or(&0));
-        let u = &s & &matches;
+        let matches = block.get(&ch2).unwrap_or(&zero);
+        let u = &s & matches;
         s = (&s + &u) | (&s - &u);
     }
 
-    let res = count_zeros_in_binary_string(s, s1) as f64;
+    let res = count_zeros_in_binary_string(s, s1) as u32;
 
-    if score_cutoff.is_none() || res >= score_cutoff.unwrap() {
+    if score_cutoff.is_none() || (res as f64) >= score_cutoff.unwrap() {
         res
     } else {
-        0.0
+        0
     }
 }
 
