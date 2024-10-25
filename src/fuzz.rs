@@ -445,6 +445,21 @@ mod tests {
     }
 
     #[test]
+    fn test_partial_ratio_alignment() {
+        let str1 = "er merkantilismus förderte handle und verkehr mit teils marktkonformen, teils dirigistischen maßnahmen.";
+        let str2 = "ils marktkonformen, teils dirigistischen maßnahmen. an der schwelle zum 19. jahrhundert entstand ein neu";
+
+        let alignment = _partial_ratio_alignment(Some(str1), Some(str2), None).unwrap();
+
+        dbg!(&alignment);
+
+        assert_eq!(alignment.src_start, 0);
+        assert_eq!(alignment.src_end, 103);
+        assert_eq!(alignment.dest_start, 0);
+        assert_eq!(alignment.dest_end, 51);
+    }
+
+    #[test]
     fn test_partial_ratio_short_needle_identical() {
         let s1 = str_to_vec("abcd");
         let s2 = str_to_vec("abcd");
