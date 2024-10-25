@@ -1,29 +1,85 @@
-use crate::common::conv_sequences;
+use crate::common::conv_sequence;
 use crate::distance::indel::{block_normalized_similarity, normalized_similarity};
 use crate::distance::models::ScoreAlignment;
 use num_bigint::BigUint;
 use pyo3::prelude::*;
 use std::collections::{HashMap, HashSet};
 
+#[derive(Clone, FromPyObject)]
+pub enum Input {
+    #[pyo3(transparent, annotation = "str")]
+    String(String),
+    #[pyo3(transparent, annotation = "bytes")]
+    Bytes(Vec<u8>),
+    #[pyo3(transparent, annotation = "list[str]")]
+    ListString(Vec<String>),
+    #[pyo3(transparent, annotation = "list[int]")]
+    ListInt(Vec<usize>),
+    #[pyo3(transparent, annotation = "list[float]")]
+    ListFloat(Vec<f64>),
+}
+
+impl Input {
+    pub fn conv_sequence(&self) -> Vec<u64> {
+        match self {
+            Input::String(s) => conv_sequence(&(s.chars().map(|c| c as u64).collect::<Vec<_>>())),
+            Input::Bytes(b) => conv_sequence(b),
+            Input::ListString(s) => conv_sequence(s),
+            Input::ListInt(i) => conv_sequence(i),
+            Input::ListFloat(f) => conv_sequence(f),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Input::String(s) => s.is_empty(),
+            Input::Bytes(b) => b.is_empty(),
+            Input::ListString(s) => s.is_empty(),
+            Input::ListInt(i) => i.is_empty(),
+            Input::ListFloat(f) => f.is_empty(),
+        }
+    }
+}
+
+impl Iterator for Input {
+    type Item = u64;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.conv_sequence().into_iter().next()
+    }
+}
+
+impl IntoPy<PyObject> for Input {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        match self {
+            Input::String(s) => s.into_py(py),
+            Input::Bytes(b) => b.into_py(py),
+            Input::ListString(s) => s.into_py(py),
+            Input::ListInt(i) => i.into_py(py),
+            Input::ListFloat(f) => f.into_py(py),
+        }
+    }
+}
+
 // call a python processor function
-fn call_processor(processor: &Bound<'_, PyAny>, s: Option<&str>) -> Result<String, PyErr> {
+fn call_processor(processor: &Bound<'_, PyAny>, s: &Input) -> Result<Input, PyErr> {
+    let s = s.clone().into_py(processor.py());
     let res = processor.call1((s,))?;
-    res.extract::<String>()
+    res.extract::<Input>()
 }
 
 // process inputs with a given processor
 fn process_inputs(
-    s1: Option<&str>,
-    s2: Option<&str>,
+    s1: Option<&Input>,
+    s2: Option<&Input>,
     processor: Option<&Bound<'_, PyAny>>,
-) -> PyResult<(Option<String>, Option<String>)> {
+) -> PyResult<(Option<Input>, Option<Input>)> {
     match processor {
         Some(proc) => {
-            let processed_s1 = s1.map(|s| call_processor(proc, Some(s))).transpose()?;
-            let processed_s2 = s2.map(|s| call_processor(proc, Some(s))).transpose()?;
+            let processed_s1 = s1.map(|s| call_processor(proc, s)).transpose()?;
+            let processed_s2 = s2.map(|s| call_processor(proc, s)).transpose()?;
             Ok((processed_s1, processed_s2))
         }
-        None => Ok((s1.map(ToString::to_string), s2.map(ToString::to_string))),
+        None => Ok((s1.to_owned().cloned(), s2.to_owned().cloned())),
     }
 }
 
@@ -55,31 +111,28 @@ Examples
 96.55171966552734
 */
 #[pyfunction]
-#[pyo3(
-    signature = (s1, s2, processor=None, score_cutoff=None)
-)]
-pub fn ratio(
-    s1: Option<&str>,
-    s2: Option<&str>,
+#[pyo3(signature = (s1, s2, processor=None, score_cutoff=None))]
+pub fn ratio<'py>(
+    s1: Option<Input>,
+    s2: Option<Input>,
     processor: Option<&Bound<'_, PyAny>>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
+    let (processed_s1, processed_s2) = process_inputs(s1.as_ref(), s2.as_ref(), processor)?;
 
     Ok(_ratio(
-        processed_s1.as_deref(),
-        processed_s2.as_deref(),
+        processed_s1.as_ref(),
+        processed_s2.as_ref(),
         score_cutoff,
     ))
 }
 
-fn _ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>) -> f64 {
+fn _ratio(s1: Option<&Input>, s2: Option<&Input>, score_cutoff: Option<f64>) -> f64 {
     match (s1, s2) {
         (Some(s1), Some(s2)) => {
             let score_cutoff = score_cutoff.map(|cutoff| cutoff / 100.0);
 
-            let s1_vec: Vec<char> = s1.chars().collect();
-            let s2_vec: Vec<char> = s2.chars().collect();
+            let (s1_vec, s2_vec) = (s1.conv_sequence(), s2.conv_sequence());
 
             let score = normalized_similarity(Some(&s1_vec), Some(&s2_vec), None, score_cutoff);
             score * 100.0
@@ -153,21 +206,21 @@ Examples
     signature = (s1, s2, processor=None, score_cutoff=None)
 )]
 pub fn partial_ratio(
-    s1: Option<&str>,
-    s2: Option<&str>,
+    s1: Option<Input>,
+    s2: Option<Input>,
     processor: Option<&Bound<'_, PyAny>>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
+    let (processed_s1, processed_s2) = process_inputs(s1.as_ref(), s2.as_ref(), processor)?;
 
     Ok(_partial_ratio(
-        processed_s1.as_deref(),
-        processed_s2.as_deref(),
+        processed_s1.as_ref(),
+        processed_s2.as_ref(),
         score_cutoff,
     ))
 }
 
-fn _partial_ratio(s1: Option<&str>, s2: Option<&str>, score_cutoff: Option<f64>) -> f64 {
+fn _partial_ratio(s1: Option<&Input>, s2: Option<&Input>, score_cutoff: Option<f64>) -> f64 {
     let alignment = _partial_ratio_alignment(s1, s2, score_cutoff);
 
     match alignment {
@@ -321,23 +374,23 @@ Using the alignment information it is possible to calculate the same fuzz.ratio
     signature = (s1, s2, processor=None, score_cutoff=None)
 )]
 pub fn partial_ratio_alignment(
-    s1: Option<&str>,
-    s2: Option<&str>,
+    s1: Option<Input>,
+    s2: Option<Input>,
     processor: Option<&Bound<'_, PyAny>>,
     score_cutoff: Option<f64>,
 ) -> PyResult<Option<ScoreAlignment>> {
-    let (processed_s1, processed_s2) = process_inputs(s1, s2, processor)?;
+    let (processed_s1, processed_s2) = process_inputs(s1.as_ref(), s2.as_ref(), processor)?;
 
     Ok(_partial_ratio_alignment(
-        processed_s1.as_deref(),
-        processed_s2.as_deref(),
+        processed_s1.as_ref(),
+        processed_s2.as_ref(),
         score_cutoff,
     ))
 }
 
 fn _partial_ratio_alignment(
-    s1: Option<&str>,
-    s2: Option<&str>,
+    s1: Option<&Input>,
+    s2: Option<&Input>,
     score_cutoff: Option<f64>,
 ) -> Option<ScoreAlignment> {
     if s1.is_none() || s2.is_none() {
@@ -358,10 +411,7 @@ fn _partial_ratio_alignment(
         });
     }
 
-    let s1_vec: Vec<char> = s1.chars().collect();
-    let s2_vec: Vec<char> = s2.chars().collect();
-
-    let (s1, s2) = conv_sequences(&s1_vec, &s2_vec);
+    let (s1, s2) = (s1.conv_sequence(), s2.conv_sequence());
     let shorter;
     let longer;
 
@@ -417,7 +467,11 @@ mod tests {
     fn test_ratio() {
         let s1 = "this is a test";
         let s2 = "this is a test!";
-        let result = _ratio(Some(s1), Some(s2), None);
+        let result = _ratio(
+            Some(&Input::String(s1.to_string())),
+            Some(&Input::String(s2.to_string())),
+            None,
+        );
         assert!(
             (result - 96.55171966552734).abs() < 1e-5,
             "Expected approximately 96.55171966552734"
@@ -428,7 +482,11 @@ mod tests {
     fn test_partial_ratio() {
         let s1 = "this is a test";
         let s2 = "this is a test!";
-        let result = _partial_ratio(Some(s1), Some(s2), None);
+        let result = _partial_ratio(
+            Some(&Input::String(s1.to_string())),
+            Some(&Input::String(s2.to_string())),
+            None,
+        );
         assert_eq!(result, 100.0, "Expected 100.0");
     }
 
@@ -436,7 +494,11 @@ mod tests {
     fn test_partial_ratio_issue138() {
         let s1 = "a".repeat(65);
         let s2 = format!("a{}{}", char::from_u32(256).unwrap(), "a".repeat(63));
-        let result = _partial_ratio(Some(&s1), Some(&s2), None);
+        let result = _partial_ratio(
+            Some(&Input::String(s1.to_string())),
+            Some(&Input::String(s2.to_string())),
+            None,
+        );
         assert!(
             (result - 99.22481).abs() < 1e-5,
             "Expected approximately 99.22481, got {}",
@@ -449,7 +511,12 @@ mod tests {
         let str1 = "er merkantilismus förderte handle und verkehr mit teils marktkonformen, teils dirigistischen maßnahmen.";
         let str2 = "ils marktkonformen, teils dirigistischen maßnahmen. an der schwelle zum 19. jahrhundert entstand ein neu";
 
-        let alignment = _partial_ratio_alignment(Some(str1), Some(str2), None).unwrap();
+        let alignment = _partial_ratio_alignment(
+            Some(&Input::String(str1.to_string())),
+            Some(&Input::String(str2.to_string())),
+            None,
+        )
+        .unwrap();
 
         dbg!(&alignment);
 
