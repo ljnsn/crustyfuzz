@@ -2,10 +2,11 @@ import random
 import string
 import timeit
 
-from crustyfuzz import ratio as crustyfuzz_ratio
-from rapidfuzz import fuzz
+from crustyfuzz import fuzz as fuzz_cf
+from rapidfuzz import fuzz as fuzz_rf
 
-rapidfuzz_ratio = fuzz.ratio
+crustyfuzz_ratio = fuzz_cf.ratio
+rapidfuzz_ratio = fuzz_rf.ratio
 
 words = [
     "".join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
