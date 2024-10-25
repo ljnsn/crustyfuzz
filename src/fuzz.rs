@@ -435,7 +435,7 @@ mod tests {
     #[test]
     fn test_partial_ratio_issue138() {
         let s1 = "a".repeat(65);
-        let s2 = format!("a{}{}", char::from_u32(256).unwrap(), "a".repeat(65));
+        let s2 = format!("a{}{}", char::from_u32(256).unwrap(), "a".repeat(63));
         let result = _partial_ratio(Some(&s1), Some(&s2), None);
         assert!(
             (result - 99.22481).abs() < 1e-5,
