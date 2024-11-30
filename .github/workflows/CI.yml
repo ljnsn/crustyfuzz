@@ -79,9 +79,9 @@ jobs:
           install: |
             apt-get update
             apt-get install -y --no-install-recommends python3 curl
-            curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
           run: |
             set -e
+            curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
             /usr/uv sync --only-dev --frozen --no-install-project --no-editable
             /usr/uv pip install crustyfuzz --find-links dist --force-reinstall
             /usr/uv run --no-sync pytest
@@ -131,9 +131,11 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
-            uv sync --only-dev --frozen --no-install-project --no-editable
-            uv pip install crustyfuzz --find-links dist --force-reinstall
-            uv run --no-sync pytest
+            apk add curl
+            curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
+            /usr/uv sync --only-dev --frozen --no-install-project --no-editable
+            /usr/uv pip install crustyfuzz --find-links dist --force-reinstall
+            /usr/uv run --no-sync pytest
 
       - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'x86') }}
