@@ -30,8 +30,8 @@ jobs:
             target: x86
           - runner: ubuntu-latest
             target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
+          # - runner: ubuntu-latest
+          #   target: armv7
           - runner: ubuntu-latest
             target: s390x
           - runner: ubuntu-latest
@@ -99,8 +99,8 @@ jobs:
             target: x86
           - runner: ubuntu-latest
             target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
+          # - runner: ubuntu-latest
+          #   target: armv7
     steps:
       - uses: actions/checkout@v4
 
@@ -162,8 +162,8 @@ jobs:
         platform:
           - runner: windows-latest
             target: x64
-          - runner: windows-latest
-            target: x86
+          # - runner: windows-latest
+          #   target: x86
     steps:
       - uses: actions/checkout@v4
 
