@@ -30,6 +30,11 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+[dependency-groups]
+dev = [
+    "setuptools>=75.6.0 ; python_full_version >= '3.12'",
+]
+
 [tool.uv]
 dev-dependencies = [
   "fuzzywuzzy>=0.18.0",
