@@ -79,7 +79,7 @@ jobs:
           install: |
             apt-get update
             apt-get install -y --no-install-recommends python3 curl
-            apt reinstall ca-certificates
+            apt-get reinstall -y --no-install-recommends ca-certificates
             update-ca-certificates
           run: |
             set -e
