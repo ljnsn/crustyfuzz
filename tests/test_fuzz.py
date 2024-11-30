@@ -5,9 +5,9 @@ from __future__ import annotations
 from array import array
 
 import pytest
-from rapidfuzz import fuzz_cpp  # type: ignore[attr-defined]
+from rapidfuzz import fuzz as fuzz_rf  # type: ignore[attr-defined]
 
-from crustyfuzz import fuzz as fuzz_rs
+from crustyfuzz import fuzz as fuzz_cf
 from crustyfuzz import utils
 from crustyfuzz.distance import ScoreAlignment
 from tests.common import symmetric_scorer_tester
@@ -16,22 +16,22 @@ from tests.common import symmetric_scorer_tester
 class fuzz:
     @staticmethod
     def ratio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.ratio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.ratio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.ratio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.ratio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def partial_ratio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.partial_ratio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.partial_ratio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.partial_ratio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.partial_ratio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def partial_ratio_alignment(*args, **kwargs):
-        dist1 = fuzz_cpp.partial_ratio_alignment(*args, **kwargs)
-        dist2 = fuzz_rs.partial_ratio_alignment(*args, **kwargs)
+        dist1 = fuzz_rf.partial_ratio_alignment(*args, **kwargs)
+        dist2 = fuzz_cf.partial_ratio_alignment(*args, **kwargs)
         if dist1 is None or dist2 is None:
             assert dist1 == dist2
         else:
@@ -41,34 +41,34 @@ class fuzz:
 
     @staticmethod
     def token_sort_ratio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.token_sort_ratio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.token_sort_ratio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.token_sort_ratio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.token_sort_ratio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def token_set_ratio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.token_set_ratio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.token_set_ratio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.token_set_ratio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.token_set_ratio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def token_ratio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.token_ratio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.token_ratio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.token_ratio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.token_ratio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def partial_token_sort_ratio(*args, **kwargs):
         dist1 = symmetric_scorer_tester(
-            fuzz_cpp.partial_token_sort_ratio,
+            fuzz_rf.partial_token_sort_ratio,
             *args,
             **kwargs,
         )
         dist2 = symmetric_scorer_tester(
-            fuzz_rs.partial_token_sort_ratio,
+            fuzz_cf.partial_token_sort_ratio,
             *args,
             **kwargs,
         )
@@ -78,12 +78,12 @@ class fuzz:
     @staticmethod
     def partial_token_set_ratio(*args, **kwargs):
         dist1 = symmetric_scorer_tester(
-            fuzz_cpp.partial_token_set_ratio,
+            fuzz_rf.partial_token_set_ratio,
             *args,
             **kwargs,
         )
         dist2 = symmetric_scorer_tester(
-            fuzz_rs.partial_token_set_ratio,
+            fuzz_cf.partial_token_set_ratio,
             *args,
             **kwargs,
         )
@@ -92,22 +92,22 @@ class fuzz:
 
     @staticmethod
     def partial_token_ratio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.partial_token_ratio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.partial_token_ratio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.partial_token_ratio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.partial_token_ratio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def WRatio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.WRatio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.WRatio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.WRatio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.WRatio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
     @staticmethod
     def QRatio(*args, **kwargs):
-        dist1 = symmetric_scorer_tester(fuzz_cpp.QRatio, *args, **kwargs)
-        dist2 = symmetric_scorer_tester(fuzz_rs.QRatio, *args, **kwargs)
+        dist1 = symmetric_scorer_tester(fuzz_rf.QRatio, *args, **kwargs)
+        dist2 = symmetric_scorer_tester(fuzz_cf.QRatio, *args, **kwargs)
         assert pytest.approx(dist1) == dist2
         return dist1
 
