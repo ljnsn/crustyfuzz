@@ -144,12 +144,12 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apk add py3-pip py3-virtualenv curl
-            curl -LsSf https://astral.sh/uv/install.sh | sh
+            curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
           run: |
             set -e
-            uv sync --only-dev --frozen --no-install-project --no-editable
+            /usr/uv sync --only-dev --frozen --no-install-project --no-editable
             pip3 install crustyfuzz --find-links dist --force-reinstall
-            uv run --no-sync pytest
+            /usr/uv run --no-sync pytest
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
