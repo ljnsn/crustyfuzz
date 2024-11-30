@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import pytest
-from rapidfuzz.distance import metrics_cpp as metrics_rf  # type: ignore[attr-defined]
+
+try:
+    from rapidfuzz.distance import metrics_cpp as metrics_rf  # type: ignore[attr-defined]
+except ImportError:
+    metrics_rf = None
 
 from crustyfuzz import utils
 from crustyfuzz.distance import Editop, metrics
 from tests.distance.common import Hamming
 
 
+@pytest.mark.skipif(metrics_rf is None, reason="RapidFuzz C++ extension not installed")
 def hamming_editops(s1, s2):
     ops1 = metrics.hamming_editops(s1, s2)
     ops2 = metrics_rf.hamming_editops(s1, s2)
