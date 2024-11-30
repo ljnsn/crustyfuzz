@@ -216,13 +216,15 @@ numpy = [
     { name = "pandas-stubs", version = "2.0.2.230605", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version <= '3.8' or python_full_version >= '3.9'" },
     { name = "pandas-stubs", version = "2.0.3.230814", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version > '3.8' and python_full_version < '3.9'" },
 ]
+plot = [
+    { name = "matplotlib" },
+]
 
 [package.dev-dependencies]
 dev = [
     { name = "fuzzywuzzy" },
     { name = "hypothesis" },
     { name = "ipython" },
-    { name = "matplotlib" },
     { name = "maturin" },
     { name = "mypy" },
     { name = "pytest" },
@@ -232,6 +234,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "matplotlib", marker = "extra == 'plot'", specifier = ">=3.7.5" },
     { name = "numpy", marker = "extra == 'numpy'", specifier = ">=1.24.4" },
     { name = "pandas", marker = "extra == 'numpy'", specifier = ">=2.0.3" },
     { name = "pandas-stubs", marker = "extra == 'numpy'", specifier = ">=2.0.2.230605" },
@@ -242,7 +245,6 @@ dev = [
     { name = "fuzzywuzzy", specifier = ">=0.18.0" },
     { name = "hypothesis", specifier = ">=6.113.0" },
     { name = "ipython", specifier = "!=8.18.0" },
-    { name = "matplotlib", specifier = ">=3.7.5" },
     { name = "maturin", specifier = ">=1.7.4" },
     { name = "mypy", specifier = ">=1.12.1" },
     { name = "pytest", specifier = ">=8.3.3" },
