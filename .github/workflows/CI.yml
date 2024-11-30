@@ -78,7 +78,8 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update
-            apt-get install -y --no-install-recommends python3
+            apt-get install -y --no-install-recommends python3 curl
+            curl -LsSf https://astral.sh/uv/install.sh | sh
           run: |
             set -e
             uv sync --only-dev --frozen --no-install-project --no-editable
@@ -142,7 +143,8 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
-            apk add py3-virtualenv
+            apk add py3-virtualenv curl
+            curl -LsSf https://astral.sh/uv/install.sh | sh
           run: |
             set -e
             uv sync --only-dev --frozen --no-install-project --no-editable
