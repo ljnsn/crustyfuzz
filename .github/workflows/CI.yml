@@ -133,7 +133,7 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
-            apk add curl
+            apk add curl python3
             curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
             /usr/uv/uv sync --only-dev --frozen --no-install-project --no-editable
             /usr/uv/uv pip install crustyfuzz --find-links dist --force-reinstall
