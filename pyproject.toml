@@ -30,6 +30,9 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+numpy = ["numpy>=1.24.4", "pandas>=2.0.3"]
+
 [dependency-groups]
 dev = [
   "fuzzywuzzy>=0.18.0",
@@ -38,9 +41,7 @@ dev = [
   "matplotlib>=3.7.5",
   "maturin>=1.7.4",
   "mypy>=1.12.1",
-  "numpy>=1.24.4",
   "pandas-stubs>=2.0.2.230605",
-  "pandas>=2.0.3",
   "pytest>=8.3.3",
   "rapidfuzz>=3.9.7",
   "ruff>=0.7.4",
