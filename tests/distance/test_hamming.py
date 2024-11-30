@@ -14,25 +14,25 @@ from crustyfuzz.distance import Editop, metrics
 from tests.distance.common import Hamming
 
 
-@pytest.mark.skipif(metrics_rf is None, reason="RapidFuzz C++ extension not installed")
 def hamming_editops(s1, s2):
     ops1 = metrics.hamming_editops(s1, s2)
-    ops2 = metrics_rf.hamming_editops(s1, s2)
 
     assert ops1.src_len == len(s1)
     assert ops1.dest_len == len(s2)
-    assert ops2.src_len == len(s1)
-    assert ops2.dest_len == len(s2)
 
-    # assert ops1 == ops2
-    assert ops1.as_list() == [Editop(*op) for op in ops2.as_list()]
-    assert str(ops1) == str(ops2)
-    assert repr(ops1) == repr(ops2)
+    if metrics_rf is not None:
+        ops2 = metrics_rf.hamming_editops(s1, s2)
+        assert ops2.src_len == len(s1)
+        assert ops2.dest_len == len(s2)
+        # assert ops1 == ops2
+        assert ops1.as_list() == [Editop(*op) for op in ops2.as_list()]
+        assert str(ops1) == str(ops2)
+        assert repr(ops1) == repr(ops2)
 
-    for op1, op2 in zip(ops1, ops2):
-        assert tuple(op1) == tuple(op2)
-        assert str(op1) == str(op2)
-        assert repr(op1) == repr(op2)
+        for op1, op2 in zip(ops1, ops2):
+            assert tuple(op1) == tuple(op2)
+            assert str(op1) == str(op2)
+            assert repr(op1) == repr(op2)
 
     return ops1
 
