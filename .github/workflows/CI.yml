@@ -65,7 +65,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          uv sync --only-dev --frozen --no-install-project
+          uv sync --only-dev --frozen --no-install-project --no-editable
           uv pip install crustyfuzz --find-links dist --force-reinstall
           uv run pytest
 
@@ -81,7 +81,7 @@ jobs:
             apt-get install -y --no-install-recommends python3
           run: |
             set -e
-            uv sync --only-dev --frozen --no-install-project
+            uv sync --only-dev --frozen --no-install-project --no-editable
             pip3 install crustyfuzz --find-links dist --force-reinstall
             uv run pytest
 
@@ -130,7 +130,7 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
-            uv sync --only-dev --frozen --no-install-project
+            uv sync --only-dev --frozen --no-install-project --no-editable
             pip3 install crustyfuzz --find-links dist --force-reinstall
             uv run pytest
 
@@ -145,7 +145,7 @@ jobs:
             apk add py3-virtualenv
           run: |
             set -e
-            uv sync --only-dev --frozen --no-install-project
+            uv sync --only-dev --frozen --no-install-project --no-editable
             pip3 install crustyfuzz --find-links dist --force-reinstall
             uv run pytest
 
@@ -187,7 +187,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          uv sync --only-dev --frozen --no-install-project
+          uv sync --only-dev --frozen --no-install-project --no-editable
           pip3 install crustyfuzz --find-links dist --force-reinstall
           uv run pytest
 
