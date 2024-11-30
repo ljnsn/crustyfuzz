@@ -84,9 +84,9 @@ jobs:
           run: |
             set -e
             curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
-            /usr/uv sync --only-dev --frozen --no-install-project --no-editable
-            /usr/uv pip install crustyfuzz --find-links dist --force-reinstall
-            /usr/uv run --no-sync pytest
+            /usr/uv/uv sync --only-dev --frozen --no-install-project --no-editable
+            /usr/uv/uv pip install crustyfuzz --find-links dist --force-reinstall
+            /usr/uv/uv run --no-sync pytest
 
   musllinux:
     runs-on: ${{ matrix.platform.runner }}
