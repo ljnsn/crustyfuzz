@@ -65,6 +65,7 @@ jobs:
         shell: bash
         run: |
           set -e
+          set -x
           uv sync --only-dev --frozen --no-install-project --no-editable
           uv pip install crustyfuzz --find-links dist --force-reinstall
           uv run --no-sync pytest
@@ -83,6 +84,7 @@ jobs:
             update-ca-certificates
           run: |
             set -e
+            set -x
             curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
             /usr/uv/uv sync --only-dev --frozen --no-install-project --no-editable
             /usr/uv/uv pip install crustyfuzz --find-links dist --force-reinstall
@@ -133,6 +135,7 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
+            set -x
             apk add curl python3
             curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
             /usr/uv/uv sync --only-dev --frozen --no-install-project --no-editable
@@ -151,6 +154,7 @@ jobs:
             curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/uv" sh
           run: |
             set -e
+            set -x
             /usr/uv/uv sync --only-dev --frozen --no-install-project --no-editable
             /usr/uv/uv pip install crustyfuzz --find-links dist --force-reinstall
             /usr/uv/uv run --no-sync pytest
@@ -193,6 +197,7 @@ jobs:
         shell: bash
         run: |
           set -e
+          set -x
           uv sync --only-dev --frozen --no-install-project --no-editable
           uv pip install crustyfuzz --find-links dist --force-reinstall
           uv run --no-sync pytest
@@ -232,6 +237,7 @@ jobs:
       - name: pytest
         run: |
           set -e
+          set -x
           uv sync --only-dev --frozen --no-install-project --no-editable
           uv pip install crustyfuzz --find-links dist --force-reinstall
           uv run --no-sync pytest
