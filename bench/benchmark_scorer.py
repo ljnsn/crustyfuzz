@@ -6,10 +6,11 @@
 #     "matplotlib",
 #     "numpy",
 #     "rapidfuzz",
+#     "pyqt6",
 # ]
 #
 # [tool.uv.sources]
-# crustyfuzz = { path = "../target/wheels/crustyfuzz-0.1.0-cp38-abi3-manylinux_2_34_x86_64.whl" }
+# crustyfuzz = { path = "../target/wheels/crustyfuzz-0.1.2-cp38-abi3-manylinux_2_34_x86_64.whl" }
 # ///
 from __future__ import annotations
 
@@ -21,6 +22,8 @@ from timeit import timeit
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+
+mpl.use("qtagg")
 
 random.seed(18)
 
@@ -38,8 +41,8 @@ LIBRARIES = (
     "token_set_ratio",
     "partial_token_sort_ratio",
     "partial_token_set_ratio",
-    # "QRatio",
-    # "WRatio",
+    "QRatio",
+    "WRatio",
 )
 
 

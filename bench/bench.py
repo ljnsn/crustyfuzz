@@ -6,7 +6,7 @@
 # ]
 #
 # [tool.uv.sources]
-# crustyfuzz = { path = "../target/wheels/crustyfuzz-0.1.1-cp38-abi3-manylinux_2_34_x86_64.whl" }
+# crustyfuzz = { path = "../target/wheels/crustyfuzz-0.1.2-cp38-abi3-manylinux_2_34_x86_64.whl" }
 # ///
 import random
 import string
