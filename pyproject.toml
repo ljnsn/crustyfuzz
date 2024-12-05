@@ -32,7 +32,10 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 numpy = ["numpy>=1.24.4", "pandas>=2.0.3", "pandas-stubs>=2.0.2.230605"]
-plot = ["matplotlib>=3.7.5"]
+plot = [
+    "matplotlib>=3.7.5",
+    "pyqt6>=6.7.1",
+]
 
 [dependency-groups]
 dev = [
