@@ -7,6 +7,7 @@
 #     "numpy",
 #     "rapidfuzz",
 #     "pyqt6",
+#     "pyqt6-sip==13.8.0",
 # ]
 #
 # [tool.uv.sources]
